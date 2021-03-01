@@ -26,7 +26,7 @@
 # To install simply insert the following in your ~/.bashrc after setting your
 # prompt (assuming you use the same location for this script that I am):
 #
-# BASH_GIT_HOOK=~/bin/bash-hooks/bash-git-prompt-hook.sh 
+# BASH_GIT_HOOK=~/bin/bash-hooks/bash-git-prompt-hook.sh
 # if [ -f $BASH_GIT_HOOK ]; then
 #     . $BASH_GIT_HOOK
 # fi
@@ -102,7 +102,7 @@ function git_bash_prompt() {
 		fi
 
 		case "${git_branch}" in
-			master)
+			master|main)
 				branch=" ${color_branch_master}${git_branch}${tracking_branch}"
 				;;
 			develop)
@@ -168,4 +168,8 @@ function git_bash_prompt() {
 	printf "${color_marker}| ${origin}${branch}${state}${sha}${modified}${change}${stash}${color_reset} ${color_marker}|${color_reset}\n"
 }
 
-PROMPT_COMMAND='git_bash_prompt'
+if [ -z "$PROMPT_COMMAND" ]; then
+  PROMPT_COMMAND="git_bash_prompt"
+else
+  PROMPT_COMMAND="git_bash_prompt; $PROMPT_COMMAND"
+fi
