@@ -64,7 +64,7 @@ function git_bash_prompt() {
 
 	# Define colors
 	local color_reset="\e[0m"
-	local color_marker="\e[1;34m"
+	local color_marker="\e[0;34m"
 	local color_origin="\e[0;35m"
 	local color_branch="\e[36;1m"
 	local color_branch_local="\e[35;1m"
@@ -262,7 +262,7 @@ function git_bash_prompt() {
 
 
 	#
-	# "Separate-line" mode
+	# "Separate-line" mode (default)
 	#
 
 	# Contruct and print line
@@ -270,6 +270,7 @@ function git_bash_prompt() {
 	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ]; then
 		printf -v git_prompt_line "$fullline"
 		printf "${color_marker}| ${git_prompt_line} ${color_marker}|${color_reset}\n"
+		git_prompt_line=""
 		return
 	fi
 
@@ -337,7 +338,7 @@ function git_bash_prompt() {
 }
 
 if [ -z "$PROMPT_COMMAND" ]; then
-  PROMPT_COMMAND="git_bash_prompt"
+	PROMPT_COMMAND="git_bash_prompt"
 else
-  PROMPT_COMMAND="git_bash_prompt; $PROMPT_COMMAND"
+	PROMPT_COMMAND="git_bash_prompt; $PROMPT_COMMAND"
 fi
