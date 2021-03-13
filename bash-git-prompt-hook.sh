@@ -1,5 +1,5 @@
 ################################################################################
-# bash-git-prompt-hook.sh by BlueWizardHat, 2014-11-15
+# bash-git-prompt-hook.sh by BlueWizardHat, 2014 - 2021
 # https://github.com/BlueWizardHat/bash-git-prompt-hook
 #
 # This script installs a function in the prompt of the bash shell that will
@@ -11,17 +11,26 @@
 #
 # The info line is able to show the following information
 # - upstream origin
-# - branch or tag, including if the branch is local or tracking a remote and
-#   wether a tag is annotated or not
+# - branch or tag, including if the branch is local (⑃) or tracking a remote (⑂)
+#   and weather a tag is annotated (✔) or not (✖)
 # - if branch is tracking a remote with a different name than itself the
-#   tracked remote branch (upstream branch)
+#   tracked remote branch (upstream branch) (←)
 # - special states like merging, rebasing, cherry picking and bisecting
-# - current hash (in inverse colors if there are changes)
-# - number of files that are changed from last commit if any
-# - number of stashes if any
+# - current hash
+# - number of files that are changed from last commit if any (≠)
+# - how many commits the branch is ahead (↑) and/or behind (↓)
+# - number of stashes if any (ᐅ)
 #
 # An example of a line
-# | myorigin mybranch (hash) M:7 [ahead 1, behind 2] stashes:3 |
+# | myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
+#
+# The script can also be used to set a variable called git_prompt_line that can be
+# used at the end of a line, this is activated by setting GIT_PROMPT_RIGHT_LENGTH
+# to the number of characters that the script is allowed to use, it will automaically
+# drop least relevant part of the info to make the line fit or revert to printing
+# a separate line if there is not enough space. In this mode origin is moved to the far
+# right in the console.
+#
 #
 # To install simply insert the following in your ~/.bashrc after setting your
 # prompt (assuming you use the same location for this script that I am):
@@ -31,18 +40,32 @@
 #     . $BASH_GIT_HOOK
 # fi
 #
+# Configuration options via environment variables:
+# GIT_PROMPT_SHOW_ORIGIN = true (show origin, default), false do not show origin at all
+# GIT_PROMPT_SHOW_SHA = true (show sha, default), false (do not show sha)
+# GIT_PROMPT_SHOW_STASHES = true (show stashes, default), false (do not show stashes)
+# GIT_PROMPT_SHOW_TRACKING = true (show tracking branch if named different than the origin, default), false (do not show tracking branch)
+# GIT_PROMPT_DISABLE_UTF8_MARKERS = false (use utf-8 markers, default), true (revert to ascii and look old)
+# GIT_PROMPT_RIGHT_LENGTH = how many columns left in the line, if not set print a normal line, else set $git_prompt_line
 ################################################################################
 
 function git_bash_prompt() {
 	# Exit if not inside a git working tree
 	if ! $(git rev-parse --is-inside-work-tree > /dev/null 2>&1); then
+		git_prompt_line=""
 		return
 	fi
+
+	# Options
+	local show_origin=${GIT_PROMPT_SHOW_ORIGIN:-true}
+	local show_sha=${GIT_PROMPT_SHOW_SHA:-true}
+	local show_stashes=${GIT_PROMPT_SHOW_STASHES:-true}
+	local show_tracking=${GIT_PROMPT_SHOW_TRACKING:-true}
 
 	# Define colors
 	local color_reset="\e[0m"
 	local color_marker="\e[1;34m"
-	local color_origin="\e[0;34m"
+	local color_origin="\e[0;35m"
 	local color_branch="\e[36;1m"
 	local color_branch_local="\e[35;1m"
 	local color_branch_local_msg="\e[0;35m"
@@ -51,121 +74,266 @@ function git_bash_prompt() {
 	local color_branch_release="\e[33;1m"
 	local color_no_branch="\e[45;32;1m"
 	local color_state="\e[44;32;1m"
-	local color_tag="\e[36;1m"
+	local color_tag_anno="\e[33;1m"
+	local color_tag_non="\e[0;33m"
 	local color_tag_msg="\e[0;36m"
+	local color_tag_non_msg="\e[0;35m"
 	local color_hash="\e[34;1m"
-	local color_hash_dirty="\e[41;37;1m"
+	local color_hash_dirty="\e[31;1m"
 	local color_hash_paren="\e[0;34m"
-	local color_change_count="\e[33m"
-	local color_stash="\e[0;31m"
-	local color_empty_rep="\e[41;37m"
-	local color_dirty_marker="\e[31m"
+	local color_change_count="\e[0;33m"
+	local color_stash="\e[0;36m"
+	local color_empty_rep="\e[1;41;37m"
+	local color_dirty_marker="\e[0;31m"
+
+	# Define markers
+	if [ "$GIT_PROMPT_DISABLE_UTF8_MARKERS" != true ]; then
+		local branch_marker="⑂"
+		local local_branch_marker="⑃"
+		local modified_marker="≠"
+		local stashes_marker="ᐅ"
+		local aheadbehind_pre=""
+		local aheadbehind_post=""
+		local aheadbehind_sep=" "
+		local ahead_marker="↑"
+		local behind_marker="↓"
+		local tracking_marker="←"
+		local pre_tag_marker_anno="✔"
+		local pre_tag_marker_non="✖"
+		local post_tag_marker_non=""
+	else
+		local branch_marker=""
+		local local_branch_marker="l:"
+		local modified_marker="M:"
+		local stashes_marker="stashes:"
+		local aheadbehind_pre="["
+		local aheadbehind_post="]"
+		local aheadbehind_sep=", "
+		local ahead_marker="ahead "
+		local behind_marker="behind "
+		local tracking_marker="<-"
+		local pre_tag_marker_anno=""
+		local pre_tag_marker_non=""
+		local post_tag_marker_non=":non-annotated"
+	fi
 
 	# Find the origin
-	local origin=$(git config --get remote.origin.url 2> /dev/null) || true
-	if [ -z "$origin" ]; then
+	local origin_raw=$(git config --get remote.origin.url 2> /dev/null) || true
+	if [ "$show_origin" != true ]; then
+		origin=""
+		origin_raw=""
+	elif [ -z "$origin_raw" ]; then
 		origin="${color_origin}[no origin]"
 	else
-		origin="${color_origin}${origin}"
+		origin="${color_origin}${origin_raw}"
 	fi
 
 	# Find tracking branch and change count
-	local tracking_branch=$(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD) 2> /dev/null) || true
+	local tracking_branch_raw=$(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD) 2> /dev/null) || true
+	local tracking_branch=""
+	local change_raw=""
 	local change=""
-	if [ ! -z "${tracking_branch}" ]; then
-		set -- $(git rev-list --left-right --count $tracking_branch...HEAD 2> /dev/null)
+	if [ ! -z "${tracking_branch_raw}" ]; then
+		set -- $(git rev-list --left-right --count $tracking_branch_raw...HEAD 2> /dev/null)
 		local behind=$1
 		local ahead=$2
 		if [ ! -z "$ahead" ] && [ ! -z "$behind" ]; then
 			if [ $ahead -gt 0 ] && [ $behind -gt 0 ]; then
-				change=" ${color_change_count}[ahead $ahead, behind $behind]"
+				change_raw="${aheadbehind_pre}${ahead_marker}$ahead${aheadbehind_sep}${behind_marker}$behind${aheadbehind_post}"
 			elif [ $ahead -gt 0 ]; then
-				change=" ${color_change_count}[ahead $ahead]"
+				change_raw="${aheadbehind_pre}${ahead_marker}$ahead${aheadbehind_post}"
 			elif [ $behind -gt 0 ]; then
-				change=" ${color_change_count}[behind $behind]"
+				change_raw="${aheadbehind_pre}${behind_marker}$behind${aheadbehind_post}"
+			fi
+			if [ ! -z "$change_raw" ]; then
+				change=" ${color_change_count}${change_raw}"
+				change_raw=" $change_raw"
 			fi
 		fi
 	fi
 
 	# Check if we are on a branch or a tag
 	local git_branch=""
+	local branch_raw=""
 	local branch=""
 	local tag=""
 	if git_branch=$(git symbolic-ref --short -q HEAD 2> /dev/null); then
-		if [ -z "${tracking_branch}" ]; then
+		if [ -z "${tracking_branch_raw}" ]; then
 			color_branch="${color_branch_local}"
-			tracking_branch="${color_branch_local_msg} (local)"
-		elif [ "${tracking_branch}" == "origin/${git_branch}" ]; then
+			branch_marker="${local_branch_marker}"
+			tracking_branch=""
+		elif [[ "${tracking_branch_raw}" == "origin/${git_branch}" || "$show_tracking" != true ]]; then
+			tracking_branch_raw=""
 			tracking_branch=""
 		else
-			tracking_branch="${color_branch_local_msg} <- ${tracking_branch}"
+			tracking_branch_raw="${tracking_marker}${tracking_branch_raw}"
+			tracking_branch="${color_branch_local_msg}${tracking_branch_raw}"
 		fi
 
 		case "${git_branch}" in
 			master|main)
-				branch=" ${color_branch_master}${git_branch}${tracking_branch}"
+				branch_raw="${branch_marker}${git_branch}"
+				color_branch="${color_branch_master}"
 				;;
 			develop)
-				branch=" ${color_branch_develop}${git_branch}${tracking_branch}"
+				branch_raw="${branch_marker}${git_branch}"
+				color_branch="${color_branch_develop}"
 				;;
 			[Rr][Ee][Ll][Ee][Aa][Ss][Ee]-*)
-				branch=" ${color_branch_release}${git_branch}${tracking_branch}"
+				branch_raw="${branch_marker}${git_branch}"
+				color_branch="${color_branch_release}"
 				;;
 			*)
-				branch=" ${color_branch}${git_branch}${tracking_branch}"
+				branch_raw="${branch_marker}${git_branch}"
 				;;
 		esac
+		branch=" ${color_branch}${branch_raw}"
+		branch_raw=" $branch_raw"
 	elif tag=$(git describe --exact-match HEAD 2> /dev/null); then
-		branch=" ${color_tag_msg}Tag ${color_tag}${tag}"
+		branch_raw=" ${pre_tag_marker_anno}${tag}"
+		branch="${color_tag_msg}${pre_tag_marker_anno}${color_tag_anno}${tag}"
+		change_raw=""
 		change=""
 	elif tag=$(git describe --exact-match --tags HEAD 2> /dev/null); then
-		branch=" ${color_tag_msg}Tag ${color_tag}${tag} ${color_tag_msg}(non-annotated)"
+		branch_raw=" ${pre_tag_marker_non}${tag}${post_tag_marker_non}"
+		branch=" ${color_tag_msg}${pre_tag_marker_non}${color_tag_non}${tag}${color_tag_non_msg}${post_tag_marker_non}"
+		change_raw=""
 		change=""
 	else
+		branch_raw="  NO BRANCH "
 		branch=" ${color_no_branch} NO BRANCH ${color_reset}"
 	fi
 
 	# Check if a rebase, merge, cherry-pick or bisect is in progress
 	local git_dir=$(git rev-parse --git-dir 2> /dev/null) || true
+	local state_raw=""
 	local state=""
 	if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ]; then
-		state=" ${color_state} REBASING ${color_reset}"
+		state_raw=" REBASING "
 	elif [ -f "$git_dir/MERGE_HEAD" ]; then
-		state=" ${color_state} MERGING ${color_reset}"
+		state=" MERGING "
 	elif [ -f "$git_dir/CHERRY_PICK_HEAD" ]; then
-		state=" ${color_state} CHERRY-PICKING ${color_reset}"
+		state=" CHERRY-PICKING "
 	elif [ -f "$git_dir/BISECT_LOG" ]; then
-		state=" ${color_state} BISECTING ${color_reset}"
+		state=" BISECTING "
+	fi
+	if [ ! -z "$state_raw" ]; then
+		state=" ${color_state}${state_raw}${color_reset}"
+		state_raw=" ${state_raw}"
 	fi
 
 	# Find the modified count
 	local porcelain=$(git status --porcelain 2> /dev/null) || true
+	local modified_raw=""
 	local modified=""
 	if [ ! -z "$porcelain" ]; then
 		local files=$(echo "$porcelain" | wc -l)
-		modified=" ${color_dirty_marker}M:${files}"
+		modified_raw=" ${modified_marker}${files}"
+		modified=" ${color_dirty_marker}${modified_marker}${files}"
 	fi
 
 	# Find the hash
-	local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
+	local sha_raw=""
 	local sha=""
-	if [ -z "${short_sha}" ]; then
-		sha=" ${color_hash_paren}(${color_empty_rep} EMPTY REPOSITORY ${color_hash_paren})"
-	elif [ -z "$porcelain" ]; then
-		sha=" ${color_hash_paren}(${color_hash}${short_sha}${color_hash_paren})"
-	else
-		sha=" ${color_hash_paren}(${color_hash_dirty}${short_sha}${color_hash_paren})"
+	if [ "$show_sha" == true ]; then
+		local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
+		if [ -z "${short_sha}" ]; then
+			sha_raw=" ( EMPTY REPOSITORY )"
+			sha=" ${color_hash_paren}(${color_empty_rep} EMPTY REPOSITORY ${color_hash_paren})"
+		elif [ -z "$porcelain" ]; then
+			sha_raw=" (${short_sha})"
+			sha=" ${color_hash_paren}(${color_hash}${short_sha}${color_hash_paren})"
+		else
+			sha_raw=" (${short_sha})"
+			sha=" ${color_hash_paren}(${color_hash_dirty}${short_sha}${color_hash_paren})"
+		fi
 	fi
 
 	# Find number of stashes
-	local stash_count=$(git stash list 2> /dev/null | wc -l) || true
+	local stash_raw=""
 	local stash=""
-	if [ ${stash_count} -gt 0 ]; then
-		stash=" ${color_stash}stashes:${stash_count}"
+	if [ "$show_stashes" == true ]; then
+		local stash_count=$(git stash list 2> /dev/null | wc -l) || true
+		if [ ${stash_count} -gt 0 ]; then
+			stash_raw=" ${stashes_marker}${stash_count}"
+			stash=" ${color_stash}${stashes_marker}${stash_count}"
+		fi
 	fi
 
-	# Print the line
-	printf "${color_marker}| ${origin}${branch}${state}${sha}${modified}${change}${stash}${color_reset} ${color_marker}|${color_reset}\n"
+
+	#
+	# "Separate-line" mode
+	#
+
+	# Contruct and print line
+	local fullline=$(echo -n "${origin}${branch}${tracking_branch}${state}${sha}${modified}${change}${stash}${color_reset}" | sed 's/^[[:space:]]*//g')
+	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ]; then
+		printf -v git_prompt_line "$fullline"
+		printf "${color_marker}| ${git_prompt_line} ${color_marker}|${color_reset}\n"
+		return
+	fi
+
+	#
+	# "Right-side" mode
+	#
+
+	# Try if there is room for the full line
+	local rline_raw="     ${branch_raw}${tracking_branch_raw}${state_raw}${sha_raw}${modified_raw}${change_raw}${stash_raw}"
+	local line_len=$((${#rline_raw} + ${#origin_raw} + 1))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
+		local rline="     ${branch}${tracking_branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${origin}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Try dropping tracking branch
+	local line_len=$((line_len - ${#tracking_branch_raw}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
+		local rline="     ${branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${origin}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Try shortening the origin
+	local origin_short="${origin_raw##*:}"; origin_short="${origin_short##*/}"
+	local line_len=$((line_len - ${#origin_raw} + ${#origin_short}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
+		local rline="     ${branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${color_origin}${origin_short}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Try dropping the origin completely
+	local line_len=$((line_len - ${#origin_short}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local rline="     ${branch}${state}${sha}${modified}${change}${stash}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Try dropping the sha
+	local line_len=$((line_len - ${#sha_raw}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local rline="     ${branch}${state}${modified}${change}${stash}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Try dropping the stashes
+	local line_len=$((line_len - ${#stash_raw}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local rline="     ${branch}${state}${modified}${change}"
+		printf -v git_prompt_line "$rline"
+		return
+	fi
+
+	# Dropped as much as it makes sense to drop, so revert back to print on a separate line
+	printf -v git_prompt_line "$fullline"
+	printf "${color_marker}| ${git_prompt_line} ${color_marker}|${color_reset}\n"
+	git_prompt_line=""
 }
 
 if [ -z "$PROMPT_COMMAND" ]; then
