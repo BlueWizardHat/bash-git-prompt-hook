@@ -211,11 +211,11 @@ function git_bash_prompt() {
 	if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ]; then
 		state_raw=" REBASING "
 	elif [ -f "$git_dir/MERGE_HEAD" ]; then
-		state=" MERGING "
+		state_raw=" MERGING "
 	elif [ -f "$git_dir/CHERRY_PICK_HEAD" ]; then
-		state=" CHERRY-PICKING "
+		state_raw=" CHERRY-PICKING "
 	elif [ -f "$git_dir/BISECT_LOG" ]; then
-		state=" BISECTING "
+		state_raw=" BISECTING "
 	fi
 	if [ ! -z "$state_raw" ]; then
 		state=" ${color_state}${state_raw}${color_reset}"
