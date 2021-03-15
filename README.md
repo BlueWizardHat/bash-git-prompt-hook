@@ -3,7 +3,7 @@ Git/Bash helpers
 
 #### Installation
 
-To install, clone this repo and run the `install-hooks.sh` script.
+To install, clone this repo and run the `install-prompt.sh` script.
 
 This installs a function to the Bash prompt that displays Git info whenever
 the current directory is under a git repository.

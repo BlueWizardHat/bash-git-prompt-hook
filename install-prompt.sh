@@ -6,13 +6,18 @@ GIT_PROMPT_DIR=$(dirname $(readlink -f $0))
 
 # Install the bash hook
 touch $BASHRC_FILE
-if [[ -z $(grep GIT-BASH-MARKER $BASHRC_FILE) ]]; then
+if [[ ! -z $(grep GIT-BASH-MARKER $BASHRC_FILE) ]]; then
+	echo "Older version of the Bash Git Hooks installed, remove older version before installing this one!"
+	exit 1
+fi
+
+if [[ -z $(grep GIT-PROMPT-MARKER $BASHRC_FILE) ]]; then
 	echo "Installing Bash Git Hooks in '$BASHRC_FILE'"
 	echo >> $BASHRC_FILE
-	echo "# BEGIN  -  GIT-BASH-MARKER" >> $BASHRC_FILE
+	echo "# BEGIN  -  GIT-PROMPT-MARKER" >> $BASHRC_FILE
 	echo "GIT_PROMPT_DIR=\"$GIT_PROMPT_DIR\"" >> $BASHRC_FILE
 	echo 'source "${GIT_PROMPT_DIR}/bash-smart-prompt-init.sh"' >> $BASHRC_FILE
-	echo "# END  -  GIT-BASH-MARKER" >> $BASHRC_FILE
+	echo "# END  -  GIT-PROMPT-MARKER" >> $BASHRC_FILE
 else
 	echo "Bash Git Hooks already installed"
 fi
