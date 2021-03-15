@@ -3,7 +3,7 @@ Git/Bash helpers
 
 #### Installation
 
-To install, run the `install-hooks.sh` script.
+To install, clone this repo and run the `install-hooks.sh` script.
 
 This installs a function to the Bash prompt that displays Git info whenever
 the current directory is under a git repository.
@@ -19,30 +19,32 @@ tested with multiple versions of Git up to 2.27.0.
 
 The info line is able to show the following information
 - upstream origin
-- branch or tag, including if the branch is local or tracking a remote and
-  wether a tag is annotated or not
+- branch or tag, including if the branch is local (⑃) or tracking a remote (⑂)
+  and weather a tag is annotated (✔) or not (✘)
 - if branch is tracking a remote with a different name than itself the
-  tracked remote branch (upstream branch)
+  tracked remote branch (upstream branch) (←)
 - special states like merging, rebasing, cherry picking and bisecting
-- current hash (in inverse colors if there are changes)
-- number of files that are changed from last commit if any
-- number of stashes if any
+- current hash
+- number of files that are changed from last commit if any (≠)
+- how many commits the branch is ahead (↑) and/or behind (↓)
+- number of stashes if any (ᐅ)
 
 A examples of a line:
 
 ```
-| myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
+| myorigin ⑂mybranch ≠7 ↑1 ↓2 ᐅ3 (hash) |
 ```
 A examples of a line (utf8 markers disabled):
 ```
-| myorigin mybranch (hash) M:7 [ahead 1, behind 2] stashes:3 |
+| myorigin mybranch M:7 [ahead 1, behind 2] stashes:3 (hash) |
 ```
 
 #### Demonstration (pure git)
 
 ![demonstration of line mode](images/git_prompt_line_mode.png)
 
-Changing to ASCII mode (ie. no fancy UTF-8 characters)
+Changing to ASCII mode (ie. UTF-8 disabled - for terminals like PuTTY that don't
+support all the UTF-8 markers this uses).
 
 ![demonstration of line mode (ascii)](images/git_prompt_line_mode_ascii.png)
 
@@ -58,7 +60,7 @@ typing my commands near the start of the line.
 
 This prompt shows the directory, git and other information on one line and has the
 username@hostname and actual prompt on a separate line. Git information is shown last
-with the origin right aligned in the terminal window.
+with the origin moved to the right.
 
 The smart prompt shows the following information:
 

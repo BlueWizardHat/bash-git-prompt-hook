@@ -12,7 +12,7 @@
 # The info line is able to show the following information
 # - upstream origin
 # - branch or tag, including if the branch is local (⑃) or tracking a remote (⑂)
-#   and weather a tag is annotated (✔) or not (✖)
+#   and weather a tag is annotated (✔) or not (✘)
 # - if branch is tracking a remote with a different name than itself the
 #   tracked remote branch (upstream branch) (←)
 # - special states like merging, rebasing, cherry picking and bisecting
@@ -88,8 +88,10 @@ function git_bash_prompt() {
 
 	# Define markers
 	if [ "$GIT_PROMPT_DISABLE_UTF8_MARKERS" != true ]; then
+		local line_marker="◇"
 		local branch_marker="⑂"
 		local local_branch_marker="⑃"
+		local origin_marker="→"
 		local modified_marker="≠"
 		local stashes_marker="ᐅ"
 		local aheadbehind_pre=""
@@ -99,11 +101,13 @@ function git_bash_prompt() {
 		local behind_marker="↓"
 		local tracking_marker="←"
 		local pre_tag_marker_anno="✔"
-		local pre_tag_marker_non="✖"
+		local pre_tag_marker_non="✘"
 		local post_tag_marker_non=""
 	else
+		local line_marker="|"
 		local branch_marker=""
 		local local_branch_marker="l:"
+		local origin_marker=""
 		local modified_marker="M:"
 		local stashes_marker="stashes:"
 		local aheadbehind_pre="["
@@ -123,6 +127,7 @@ function git_bash_prompt() {
 		origin=""
 		origin_raw=""
 	elif [ -z "$origin_raw" ]; then
+		origin_raw="[no origin]"
 		origin="${color_origin}[no origin]"
 	else
 		origin="${color_origin}${origin_raw}"
@@ -266,10 +271,10 @@ function git_bash_prompt() {
 	#
 
 	# Contruct and print line
-	local fullline=$(echo -n "${origin}${branch}${tracking_branch}${state}${sha}${modified}${change}${stash}${color_reset}" | sed 's/^[[:space:]]*//g')
+	local fullline="${origin}${branch}${tracking_branch}${state}${modified}${change}${stash}${sha}${color_reset}"
 	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ]; then
 		printf -v git_prompt_line "$fullline"
-		printf "${color_marker}| ${git_prompt_line} ${color_marker}|${color_reset}\n"
+		printf "${color_marker}${line_marker}${git_prompt_line} ${color_marker}${line_marker}${color_reset}\n"
 		git_prompt_line=""
 		return
 	fi
@@ -279,11 +284,19 @@ function git_bash_prompt() {
 	#
 
 	# Try if there is room for the full line
-	local rline_raw="     ${branch_raw}${tracking_branch_raw}${state_raw}${sha_raw}${modified_raw}${change_raw}${stash_raw}"
-	local line_len=$((${#rline_raw} + ${#origin_raw} + 1))
+	local rline_raw="  ${origin_marker} ${branch_raw}${tracking_branch_raw}${state_raw}${modified_raw}${change_raw}${stash_raw}${sha_raw}"
+
+	if [ "$show_origin" == true ]; then
+		local pre_origin_raw="  ${origin_marker}  "
+		local pre_origin="  ${color_origin}${origin_marker}  "
+	else
+		local pre_origin_raw=""
+		local pre_origin=""
+	fi
+
+	local line_len=$((${#rline_raw} + ${#origin_raw} + ${#pre_origin_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
-		local rline="     ${branch}${tracking_branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${origin}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${tracking_branch}${state}${modified}${change}${stash}${sha}${pre_origin}${origin}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
@@ -291,8 +304,7 @@ function git_bash_prompt() {
 	# Try dropping tracking branch
 	local line_len=$((line_len - ${#tracking_branch_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
-		local rline="     ${branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${origin}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}${pre_origin}${origin}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
@@ -301,16 +313,15 @@ function git_bash_prompt() {
 	local origin_short="${origin_raw##*:}"; origin_short="${origin_short##*/}"
 	local line_len=$((line_len - ${#origin_raw} + ${#origin_short}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local origin_offset=$(if [ $show_origin == true ]; then echo $(($GIT_PROMPT_RIGHT_LENGTH - $line_len)); else echo 0; fi)
-		local rline="     ${branch}${state}${sha}${modified}${change}${stash}$(printf "%${origin_offset}s")${color_origin}${origin_short}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}${pre_origin}${origin_short}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
 
 	# Try dropping the origin completely
-	local line_len=$((line_len - ${#origin_short}))
+	local line_len=$((line_len - ${#origin_short} - ${#pre_origin_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="     ${branch}${state}${sha}${modified}${change}${stash}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
@@ -318,7 +329,7 @@ function git_bash_prompt() {
 	# Try dropping the sha
 	local line_len=$((line_len - ${#sha_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="     ${branch}${state}${modified}${change}${stash}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
@@ -326,14 +337,14 @@ function git_bash_prompt() {
 	# Try dropping the stashes
 	local line_len=$((line_len - ${#stash_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="     ${branch}${state}${modified}${change}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}"
 		printf -v git_prompt_line "$rline"
 		return
 	fi
 
 	# Dropped as much as it makes sense to drop, so revert back to print on a separate line
 	printf -v git_prompt_line "$fullline"
-	printf "${color_marker}| ${git_prompt_line} ${color_marker}|${color_reset}\n"
+	printf "${color_marker}${line_marker}${git_prompt_line} ${color_marker}${line_marker}${color_reset}\n"
 	git_prompt_line=""
 }
 
