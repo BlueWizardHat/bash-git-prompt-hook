@@ -14,6 +14,11 @@
 # GIT_PROMPT_SHOW_STASHES=true
 # GIT_PROMPT_SHOW_TRACKING=true
 # GIT_PROMPT_DISABLE_UTF8_MARKERS=false
+# GIT_PROMPT_INTEGRATED=true
+#
+# Note that GIT_PROMPT_SHOW_ORIGIN=false only hides origin in integrated mode,
+# when a separate line origin will always be printed.
+
 
 #
 # Activate the git prompt (do not comment out this or you lose all git features)
