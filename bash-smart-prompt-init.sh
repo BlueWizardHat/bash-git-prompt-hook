@@ -14,16 +14,19 @@
 # GIT_PROMPT_SHOW_STASHES=true
 # GIT_PROMPT_SHOW_TRACKING=true
 # GIT_PROMPT_DISABLE_UTF8_MARKERS=false
-# GIT_PROMPT_INTEGRATED=true
 #
-# Note that GIT_PROMPT_SHOW_ORIGIN=false only hides origin in integrated mode,
+# Note that GIT_PROMPT_SHOW_ORIGIN=false only hides origin in "inline" mode,
 # when a separate line origin will always be printed.
-
 
 #
 # Activate the git prompt (do not comment out this or you lose all git features)
 #
 source "${GIT_PROMPT_DIR}/bash-git-prompt-hook.sh"
+
+#
+# Configure smart prompt features (below shows the default)
+#
+# GIT_PROMPT_INLINE=true
 
 #
 # Activate the two-line smart prompt (comment out to stick with your own prompt)

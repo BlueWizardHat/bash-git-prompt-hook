@@ -27,12 +27,11 @@ ps1_exit_code() {
 	fi
 }
 ps1_calc_git_len() {
-	local integrated=${GIT_PROMPT_INTEGRATED:-true}
 	columns=${COLUMNS:-$(tput cols)}
 	printf -v lp "${PS1_LINE1_L@P}"
 	local stripped=$(sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" <<<"$lp" | sed "s,[\x01-\x02],,g")
 	local ps1_left_len=${#stripped}
-	GIT_PROMPT_RIGHT_LENGTH=$(if [ "$integrated" == true ]; then echo $((columns - ps1_left_len - 2)); else echo 0; fi)
+	GIT_PROMPT_RIGHT_LENGTH=$(if [ "${GIT_PROMPT_INLINE:-true}" == true ]; then echo $((columns - ps1_left_len - 2)); else echo 0; fi)
 }
 
 # Ensure the git line is part of the prompt, not printed by itself

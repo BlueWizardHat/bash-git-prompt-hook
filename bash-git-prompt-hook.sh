@@ -22,7 +22,7 @@
 # - number of stashes if any (ᐅ)
 #
 # An example of a line
-# | myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
+# [ myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 ]
 #
 # The script can also be used to set a variable called git_prompt_right that can be
 # used at the end of a line, this is activated by setting GIT_PROMPT_RIGHT_LENGTH
@@ -72,6 +72,7 @@ function git_bash_prompt() {
 	local color_branch="\e[36;1m"
 	local color_branch_local="\e[35;1m"
 	local color_branch_local_msg="\e[0;35m"
+	local color_branch_empty_rep="\e[0;31m"
 	local color_branch_master="\e[32;1m"
 	local color_branch_develop="\e[31;1m"
 	local color_branch_release="\e[33;1m"
@@ -86,13 +87,11 @@ function git_bash_prompt() {
 	local color_hash_dirty="\e[31;1m"
 	local color_hash_paren="\e[0;34m"
 	local color_change_count="\e[0;33m"
-	local color_stash="\e[0;36m"
-	local color_empty_rep="\e[1;41;37m"
+	local color_stash="\e[0;34m"
 	local color_dirty_marker="\e[0;31m"
 
 	# Define markers
 	if [ "$GIT_PROMPT_DISABLE_UTF8_MARKERS" != true ]; then
-		local line_marker="◇"
 		local branch_marker="⑂"
 		local local_branch_marker="⑃"
 		local origin_marker="→"
@@ -108,7 +107,6 @@ function git_bash_prompt() {
 		local pre_tag_marker_non="✘"
 		local post_tag_marker_non=""
 	else
-		local line_marker="|"
 		local branch_marker=""
 		local local_branch_marker="l:"
 		local origin_marker=""
@@ -241,18 +239,19 @@ function git_bash_prompt() {
 	# Find the hash
 	local sha_raw=""
 	local sha=""
-	if [ "$show_sha" == true ]; then
-		local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
-		if [ -z "${short_sha}" ]; then
-			sha_raw=" ( EMPTY REPOSITORY )"
-			sha=" ${color_hash_paren}(${color_empty_rep} EMPTY REPOSITORY ${color_hash_paren})"
-		elif [ -z "$porcelain" ]; then
+	local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
+	if [ "$show_sha" == true ] && [ ! -z "${short_sha}" ]; then
+		if [ -z "$porcelain" ]; then
 			sha_raw=" (${short_sha})"
 			sha=" ${color_hash_paren}(${color_hash}${short_sha}${color_hash_paren})"
 		else
 			sha_raw=" (${short_sha})"
 			sha=" ${color_hash_paren}(${color_hash_dirty}${short_sha}${color_hash_paren})"
 		fi
+	fi
+	if [ -z "${short_sha}" ]; then
+		branch_raw="${branch_raw}:empty-repository"
+		branch="${branch}${color_branch_empty_rep}:empty-repository"
 	fi
 
 	# Find number of stashes
@@ -276,12 +275,12 @@ function git_bash_prompt() {
 	#
 
 	# Contruct and print line
-	local fullline="${origin}${branch}${state}${modified}${change}${stash}${sha}${tracking_branch}${color_reset}"
-	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ] ; then
+	local fullline="${origin}${branch}${state}${sha}${modified}${change}${stash}${tracking_branch}${color_reset}"
+	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ] || [ "$GIT_PROMPT_RIGHT_LENGTH" == 0 ] ; then
 		if [ $disable_print == true ]; then
 			git_prompt_line="$fullline"
 		else
-			printf "${color_marker}${line_marker} ${fullline} ${color_marker}${line_marker}${color_reset}\n"
+			printf "${color_marker}[ ${fullline} ${color_marker}]${color_reset}\n"
 		fi
 		return
 	fi
@@ -289,9 +288,6 @@ function git_bash_prompt() {
 	#
 	# "Right-side" mode
 	#
-
-	# Try if there is room for the full line
-	local rline_raw="  ${origin_marker} ${branch_raw}${state_raw}${modified_raw}${change_raw}${stash_raw}${sha_raw}${tracking_branch_raw}"
 
 	if [ "$show_origin" == true ]; then
 		local pre_origin_raw="  ${origin_marker}  "
@@ -303,9 +299,19 @@ function git_bash_prompt() {
 		origin=""
 	fi
 
+	# Try if there is room for the full line
+	local rline_raw="  ${origin_marker} ${branch_raw}${state_raw}${sha_raw}${modified_raw}${change_raw}${stash_raw}${tracking_branch_raw}"
 	local line_len=$((${#rline_raw} + ${#origin_raw} + ${#pre_origin_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}${tracking_branch}${pre_origin}${origin}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${sha}${modified}${change}${stash}${tracking_branch}${pre_origin}${origin}"
+		printf -v git_prompt_right "$rline"
+		return
+	fi
+
+	# Try dropping the sha
+	local line_len=$((line_len - ${#sha_raw}))
+	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${tracking_branch}${pre_origin}${origin}"
 		printf -v git_prompt_right "$rline"
 		return
 	fi
@@ -314,21 +320,13 @@ function git_bash_prompt() {
 	local origin_short="${origin_raw##*:}"; origin_short="${origin_short##*/}"
 	local line_len=$((line_len - ${#origin_raw} + ${#origin_short}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}${tracking_branch}${pre_origin}${origin_short}"
+		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${tracking_branch}${pre_origin}${origin_short}"
 		printf -v git_prompt_right "$rline"
 		return
 	fi
 
 	# Try dropping the origin completely
 	local line_len=$((line_len - ${#origin_short} - ${#pre_origin_raw}))
-	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
-		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${sha}${tracking_branch}"
-		printf -v git_prompt_right "$rline"
-		return
-	fi
-
-	# Try dropping the sha
-	local line_len=$((line_len - ${#sha_raw}))
 	if [ $line_len -lt $GIT_PROMPT_RIGHT_LENGTH ]; then
 		local rline="  ${color_origin}${origin_marker} ${branch}${state}${modified}${change}${stash}${tracking_branch}"
 		printf -v git_prompt_right "$rline"
@@ -355,7 +353,7 @@ function git_bash_prompt() {
 	if [ $disable_print == true ]; then
 		git_prompt_line="$fullline"
 	else
-		printf "${color_marker}${line_marker} ${fullline} ${color_marker}${line_marker}${color_reset}\n"
+		printf "${color_marker}[ ${fullline} ${color_marker}]${color_reset}\n"
 	fi
 }
 
