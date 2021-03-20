@@ -34,6 +34,7 @@ A examples of a line:
 ```
 | myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
 ```
+![standalone](images/standalone.png)
 
 #### Config
 
@@ -47,15 +48,8 @@ An example of a line with utf8 markers disabled:
 ```
 | myorigin mybranch (hash) M:7 [ahead 1, behind 2] stashes:3 |
 ```
+![standalone ascii](images/standalone_ascii.png)
 
-#### Demonstration (stand alone)
-
-![demonstration of line mode](images/git_prompt_line_mode.png)
-
-Changing to ASCII mode (ie. UTF-8 disabled - for terminals like PuTTY that don't
-support all the UTF-8 markers this uses).
-
-![demonstration of line mode (ascii)](images/git_prompt_line_mode_ascii.png)
 
 #### Additinal configuration options
 
@@ -97,24 +91,19 @@ Example of inline mode:
 ┌ 0 ~5ms 08:44:16 ~/directory/  →  ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
 └ user@host $
 ```
+![inline](images/two_line_with_git.png)
+![inline](images/two_line_with_git_master_no_changes.png)
+
 It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 ```
 ┌ myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3
 │ 0 ~5ms 08:44:16 ~/directory/
 └ user@host $
 ```
-Which of course again becomes a two line prompt when not in a git directory
-```
-┌ 0 ~5ms 08:44:16 ~/directory/
-└ user@host $
-```
+![three line](images/three_line.png)
 
+Which of course again becomes a two line prompt when not in a git directory.
 
-![demonstration of smart mode (git)](images/smart_prompt_git.png)
-
-Non-git features demonstrated:
-
-![demonstration of smart mode (non-git)](images/smart_prompt.png)
 
 #### Dropping git information intelligently
 
@@ -127,9 +116,3 @@ by shortening the origin and dropping the least useful information a little at a
 from the prompt if there is not enough space. In case there is not enough space on
 the line for even the most basic git information it will even revert back to the
 default mode of printing git info on a separate line.
-
-Demonstrated here (with origin already shortened due to lack of space):
-
-![demonstration of smart dropping git info](images/smart_prompt_drop_git.png)
-
-
