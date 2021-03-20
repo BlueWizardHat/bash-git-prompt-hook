@@ -58,10 +58,11 @@ prompt explained below.
 
 - GIT_PROMPT_RIGHT_LENGTH=&lt;number&gt; -
 	tells the prompt to try to fit the git information into the number of characters and put the
-	result into a variable `git_prompt_right`.
+	result into a variable `git_prompt_right`. If git information cannot fit it will revert to
+	printing on a separate line.
 
-- GIT_PROMPT_DISABLE_PRINT={true,false} -
-	tells the prompt to never actually print a line. Instead put the information into either
+- GIT_PROMPT_DISABLE_PRINT=false -
+	if `true` tells the prompt to never actually print a line. Instead put the information into either
 	`git_prompt_right` or `git_prompt_line` depending on weather `GIT_PROMPT_RIGHT_LENGTH`
 	is set and the information can fit.
 
