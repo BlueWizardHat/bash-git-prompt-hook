@@ -53,8 +53,20 @@ An example of a line with utf8 markers disabled:
 
 #### Additinal configuration options
 
-- GIT_PROMPT_RIGHT_LENGTH = how many columns left in the line, if not set print a normal line, else set $git_prompt_right
-- GIT_PROMPT_DISABLE_PRINT = false (print line when GIT_PROMPT_RIGHT_LENGTH is not set or reverting to print, default), true (only set variables)
+Additionally the git prompt also takes two special configs that are used by the smart
+prompt explained below.
+
+- GIT_PROMPT_RIGHT_LENGTH=&lt;number&gt;
+	tells the prompt to try to fit the git information into the number of characters and put the
+	result into a variable ```git_prompt_right```.
+
+- GIT_PROMPT_DISABLE_PRINT=(true,false)
+	tells the prompt to never actually print a line. Instead put the information into either
+	```git_prompt_right``` or ```git_prompt_line``` depending on weather GIT_PROMPT_RIGHT_LENGTH
+	is set and the information can fit.
+
+Unless you are making your own smart prompt you won't need to worry about these.
+
 
 ## Smart prompt
 
@@ -104,8 +116,16 @@ It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 
 Which of course again becomes a two line prompt when not in a git directory.
 
+#### Config
 
-#### Dropping git information intelligently
+The git prompt can be configured slightly with some environment variables
+- GIT_PROMPT_SHOW_ORIGIN=true
+	(only relevant in inline mode, when showing git information on a separate line origin is always shown)
+- GIT_PROMPT_INLINE=true
+	allows you to disable inline mode so git info is always a separate line.
+
+
+#### Dropping git information intelligently (inline mode)
 
 I usually use the excellent [Guake Terminal](http://guake-project.org/) so my terminal
 is pretty wide and thus has plenty of room for information, however sometimes even I

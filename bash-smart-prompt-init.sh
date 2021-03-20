@@ -9,7 +9,6 @@
 #
 # Configure git prompt features (below shows the default)
 #
-# GIT_PROMPT_SHOW_ORIGIN=true
 # GIT_PROMPT_SHOW_SHA=true
 # GIT_PROMPT_SHOW_STASHES=true
 # GIT_PROMPT_SHOW_TRACKING=true
@@ -26,6 +25,7 @@ source "${GIT_PROMPT_DIR}/bash-git-prompt-hook.sh"
 #
 # Configure smart prompt features (below shows the default)
 #
+# GIT_PROMPT_SHOW_ORIGIN=true
 # GIT_PROMPT_INLINE=true
 
 #
