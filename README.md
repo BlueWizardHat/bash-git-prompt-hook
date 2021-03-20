@@ -32,14 +32,23 @@ The info line is able to show the following information
 A examples of a line:
 
 ```
-| myorigin ⑂mybranch ≠7 ↑1 ↓2 ᐅ3 (hash) |
-```
-A examples of a line (utf8 markers disabled):
-```
-| myorigin mybranch M:7 [ahead 1, behind 2] stashes:3 (hash) |
+| myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
 ```
 
-#### Demonstration (pure git)
+#### Config
+
+The git prompt can be configured slightly with some environment variables
+- GIT_PROMPT_SHOW_SHA=true
+- GIT_PROMPT_SHOW_STASHES=true
+- GIT_PROMPT_SHOW_TRACKING=true
+- GIT_PROMPT_DISABLE_UTF8_MARKERS=false
+
+An example of a line with utf8 markers disabled:
+```
+| myorigin mybranch (hash) M:7 [ahead 1, behind 2] stashes:3 |
+```
+
+#### Demonstration (stand alone)
 
 ![demonstration of line mode](images/git_prompt_line_mode.png)
 
@@ -47,6 +56,11 @@ Changing to ASCII mode (ie. UTF-8 disabled - for terminals like PuTTY that don't
 support all the UTF-8 markers this uses).
 
 ![demonstration of line mode (ascii)](images/git_prompt_line_mode_ascii.png)
+
+#### Additinal configuration options
+
+- GIT_PROMPT_RIGHT_LENGTH = how many columns left in the line, if not set print a normal line, else set $git_prompt_right
+- GIT_PROMPT_DISABLE_PRINT = false (print line when GIT_PROMPT_RIGHT_LENGTH is not set or reverting to print, default), true (only set variables)
 
 ## Smart prompt
 
@@ -77,6 +91,25 @@ Line 2:
 - hostname
 - prompt ($ for non-root, and # for root)
 
+
+Example of inline mode:
+```
+┌ 0 ~5ms 08:44:16 ~/directory/  →  ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
+└ user@host $
+```
+It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
+```
+┌ myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3
+│ 0 ~5ms 08:44:16 ~/directory/
+└ user@host $
+```
+Which of course again becomes a two line prompt when not in a git directory
+```
+┌ 0 ~5ms 08:44:16 ~/directory/
+└ user@host $
+```
+
+
 ![demonstration of smart mode (git)](images/smart_prompt_git.png)
 
 Non-git features demonstrated:
@@ -98,3 +131,5 @@ default mode of printing git info on a separate line.
 Demonstrated here (with origin already shortened due to lack of space):
 
 ![demonstration of smart dropping git info](images/smart_prompt_drop_git.png)
+
+

@@ -22,7 +22,7 @@
 # - number of stashes if any (ᐅ)
 #
 # An example of a line
-# [ myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 ]
+# | myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
 #
 # The script can also be used to set a variable called git_prompt_right that can be
 # used at the end of a line, this is activated by setting GIT_PROMPT_RIGHT_LENGTH
@@ -280,7 +280,7 @@ function git_bash_prompt() {
 		if [ $disable_print == true ]; then
 			git_prompt_line="$fullline"
 		else
-			printf "${color_marker}[ ${fullline} ${color_marker}]${color_reset}\n"
+			printf "${color_marker}| ${fullline} ${color_marker}|${color_reset}\n"
 		fi
 		return
 	fi
@@ -353,7 +353,7 @@ function git_bash_prompt() {
 	if [ $disable_print == true ]; then
 		git_prompt_line="$fullline"
 	else
-		printf "${color_marker}[ ${fullline} ${color_marker}]${color_reset}\n"
+		printf "${color_marker}| ${fullline} ${color_marker}|${color_reset}\n"
 	fi
 }
 
