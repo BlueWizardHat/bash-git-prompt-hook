@@ -56,13 +56,13 @@ An example of a line with utf8 markers disabled:
 Additionally the git prompt also takes two special configs that are used by the smart
 prompt explained below.
 
-- GIT_PROMPT_RIGHT_LENGTH=&lt;number&gt;
+- GIT_PROMPT_RIGHT_LENGTH=&lt;number&gt; -
 	tells the prompt to try to fit the git information into the number of characters and put the
-	result into a variable ```git_prompt_right```.
+	result into a variable `git_prompt_right`.
 
-- GIT_PROMPT_DISABLE_PRINT=(true,false)
+- GIT_PROMPT_DISABLE_PRINT={true,false} -
 	tells the prompt to never actually print a line. Instead put the information into either
-	```git_prompt_right``` or ```git_prompt_line``` depending on weather GIT_PROMPT_RIGHT_LENGTH
+	`git_prompt_right` or `git_prompt_line` depending on weather `GIT_PROMPT_RIGHT_LENGTH`
 	is set and the information can fit.
 
 Unless you are making your own smart prompt you won't need to worry about these.
@@ -118,10 +118,11 @@ Which of course again becomes a two line prompt when not in a git directory.
 
 #### Config
 
-The git prompt can be configured slightly with some environment variables
-- GIT_PROMPT_SHOW_ORIGIN=true
+The smart prompt can be configured slightly with some environment variables
+(this is in addition to the ones above for the standalone git prompt)
+- GIT_PROMPT_SHOW_ORIGIN=true -
 	(only relevant in inline mode, when showing git information on a separate line origin is always shown)
-- GIT_PROMPT_INLINE=true
+- GIT_PROMPT_INLINE=true -
 	allows you to disable inline mode so git info is always a separate line.
 
 
