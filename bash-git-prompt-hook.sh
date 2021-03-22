@@ -77,8 +77,8 @@ function git_bash_prompt() {
 	local color_branch_develop="\e[31;1m"
 	local color_branch_release="\e[33;1m"
 	local color_branch_tracking="\e[0;34m"
-	local color_no_branch="\e[45;32;1m"
-	local color_state="\e[44;32;1m"
+	local color_no_branch="\e[45;33;1m"
+	local color_state="\e[44;33;1m"
 	local color_tag_anno="\e[33;1m"
 	local color_tag_non="\e[0;33m"
 	local color_tag_msg="\e[0;36m"
@@ -92,8 +92,8 @@ function git_bash_prompt() {
 
 	# Define markers
 	if [ "$GIT_PROMPT_DISABLE_UTF8_MARKERS" != true ]; then
-		local branch_marker="⑂"
-		local local_branch_marker="⑃"
+		local branch_marker=""
+		local local_branch_marker="!"
 		local origin_marker="→"
 		local modified_marker="≠"
 		local stashes_marker="ᐅ"
@@ -108,7 +108,7 @@ function git_bash_prompt() {
 		local post_tag_marker_non=""
 	else
 		local branch_marker=""
-		local local_branch_marker="l:"
+		local local_branch_marker="!"
 		local origin_marker=""
 		local modified_marker="M:"
 		local stashes_marker="stashes:"
