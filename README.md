@@ -19,7 +19,7 @@ tested with multiple versions of Git up to 2.27.0.
 
 The info line is able to show the following information
 - upstream origin
-- branch or tag, including if the branch is local (⑃) or tracking a remote (⑂)
+- branch or tag, including if the branch is local (!) or tracking a remote
   and weather a tag is annotated (✔) or not (✘)
 - if branch is tracking a remote with a different name than itself the
   tracked remote branch (upstream branch) (←)
@@ -32,7 +32,7 @@ The info line is able to show the following information
 A examples of a line:
 
 ```
-| myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
+| myorigin mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
 ```
 ![standalone](images/standalone.png)
 
@@ -101,7 +101,7 @@ Line 2:
 
 Example of inline mode:
 ```
-┌ 0 ~5ms 08:44:16 ~/directory/  →  ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
+┌ 0 ~5ms 08:44:16 ~/directory/  →  mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
 └ user@host $
 ```
 ![inline](images/two_line_with_git.png)
@@ -109,7 +109,7 @@ Example of inline mode:
 
 It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 ```
-┌ myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3
+┌ myorigin mybranch (hash) ≠7 ↑1 ↓2 ᐅ3
 │ 0 ~5ms 08:44:16 ~/directory/
 └ user@host $
 ```

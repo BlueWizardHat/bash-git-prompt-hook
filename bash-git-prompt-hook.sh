@@ -11,7 +11,7 @@
 #
 # The info line is able to show the following information
 # - upstream origin
-# - branch or tag, including if the branch is local (⑃) or tracking a remote (⑂)
+# - branch or tag, including if the branch is local (!) or tracking a remote
 #   and weather a tag is annotated (✔) or not (✘)
 # - if branch is tracking a remote with a different name than itself the
 #   tracked remote branch (upstream branch) (←)
@@ -22,7 +22,7 @@
 # - number of stashes if any (ᐅ)
 #
 # An example of a line
-# | myorigin ⑂mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
+# | myorigin mybranch (hash) ≠7 ↑1 ↓2 ᐅ3 |
 #
 # The script can also be used to set a variable called git_prompt_right that can be
 # used at the end of a line, this is activated by setting GIT_PROMPT_RIGHT_LENGTH
