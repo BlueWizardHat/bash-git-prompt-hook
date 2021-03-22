@@ -38,7 +38,7 @@ ps1_calc_git_len() {
 GIT_PROMPT_DISABLE_PRINT=true
 
 PS1_TITLE='\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}'
-PS1_CLEARLINE='$(printf "%$((columns - 1))s\r\e[K\]")'
+PS1_CLEARLINE='\[\e[0m\]$(printf "%$((columns - 1))s\r\e[K\]")'
 PS1_LINE1_PRE='\[\e[0;34m\]┌ $([ ! -z "$git_prompt_line" ] && echo -e "${git_prompt_line}\n\[\e[0;34m\]│ ")'
 PS1_LINE1_L='$(ps1_exit_code) \[\e[0;36m\]${timer_show} $([ \j -gt 0 ] && echo -e "\[\e[0;33m\]\j ")\[\e[0;34m\]\t \[\e[0;33m\]\w'
 PS1_LINE1_R='$git_prompt_right'
