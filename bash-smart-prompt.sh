@@ -4,9 +4,9 @@
 
 # Put calculation of terminal width so it comes after the timer, but before the git hook
 if [ -z "$PROMPT_COMMAND" ]; then
-	PROMPT_COMMAND="ps1_calc_git_len"
+	PROMPT_COMMAND="ps1_pre_prompt"
 else
-	PROMPT_COMMAND="ps1_calc_git_len; $PROMPT_COMMAND"
+	PROMPT_COMMAND="ps1_pre_prompt; $PROMPT_COMMAND"
 fi
 
 # Get the timer functionality
@@ -26,12 +26,19 @@ ps1_exit_code() {
 		echo -e "\e[0;31m$last_status"
 	fi
 }
-ps1_calc_git_len() {
+ps1_pre_prompt() {
 	columns=${COLUMNS:-$(tput cols)}
 	printf -v lp "${PS1_LINE1_L@P}"
 	local stripped=$(sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" <<<"$lp" | sed "s,[\x01-\x02],,g")
 	local ps1_left_len=${#stripped}
 	GIT_PROMPT_RIGHT_LENGTH=$(if [ "${GIT_PROMPT_INLINE:-true}" == true ]; then echo $((columns - ps1_left_len - 2)); else echo 0; fi)
+	if [ "$EUID" == 0 ]; then
+		color_user_host="\e[0;31m"
+	elif [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+		color_user_host="\e[0;33m"
+	else
+		color_user_host="\e[0;32m"
+	fi
 }
 
 # Ensure the git line is part of the prompt, not printed by itself
@@ -39,9 +46,9 @@ GIT_PROMPT_DISABLE_PRINT=true
 
 PS1_TITLE='\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}'
 PS1_CLEARLINE='\[\e[0m\]$(printf "%$((columns - 1))s\r\e[K\]")'
-PS1_LINE1_PRE='\[\e[0;34m\]┌ $([ ! -z "$git_prompt_line" ] && echo -e "${git_prompt_line}\n\[\e[0;34m\]│ ")'
+PS1_LINE1_PRE='\[\e[0;34m\]┌ $([ -n "$git_prompt_line" ] && echo -e "${git_prompt_line}\n\[\e[0;34m\]│ ")'
 PS1_LINE1_L='$(ps1_exit_code) \[\e[0;36m\]${timer_show} $([ \j -gt 0 ] && echo -e "\[\e[0;33m\]\j ")\[\e[0;34m\]\t \[\e[0;33m\]\w'
 PS1_LINE1_R='$git_prompt_right'
-PS1_LINE2='\[\e[0;34m\]└ \[\e[0;32m\]\u\[\e[0;34m\]@\[\e[0;32m\]\h \[\e[01;33m\]\$\[\e[0m\] '
+PS1_LINE2='\[\e[0;34m\]└ $(echo -e $color_user_host)\u\[\e[0;34m\]@$(echo -e $color_user_host)\h \[\e[1;33m\]\$\[\e[0m\] '
 
 PS1="$PS1_TITLE$PS1_CLEARLINE$PS1_LINE1_PRE$PS1_LINE1_L$PS1_LINE1_R\n$PS1_LINE2"
