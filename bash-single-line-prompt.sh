@@ -15,7 +15,7 @@ ps1_pre_prompt() {
 	fi
 	if [ $last_status -eq 0 ]; then
 		color_line_marker="\e[0;32m"
-		line_marker="✔"
+		line_marker="→"
 	else
 		color_line_marker="\e[0;31m"
 		line_marker="✘"

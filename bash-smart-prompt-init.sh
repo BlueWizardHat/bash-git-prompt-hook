@@ -31,6 +31,6 @@ source "${GIT_PROMPT_DIR}/bash-git-prompt-hook.sh"
 source "${GIT_PROMPT_DIR}/bash-smart-prompt.sh"
 
 #
-# Or use the single line prompt
+# Or use the single line prompt (git info always on separate line)
 #
 #source "${GIT_PROMPT_DIR}/bash-single-line-prompt.sh"
