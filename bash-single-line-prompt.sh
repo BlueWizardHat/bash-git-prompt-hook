@@ -33,6 +33,6 @@ GIT_PROMPT_DISABLE_PRINT=true
 PS1_TITLE='\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}'
 PS1_CLEARLINE='\[\e[0m\]$(printf "%$((${COLUMNS:-$(tput cols)} - 1))s\r\[\e[K\]")'
 PS1_LINE_PRE='$(if [ -n "$git_prompt_line" ]; then echo -e "\[${color_line_marker}\]┌ ${git_prompt_line}\n\[${color_line_marker}\]└"; else echo -e "\[${color_line_marker}\]$line_marker"; fi)'
-PS1_LINE=' \[$(echo -e $color_user_host)\]\u\[\e[0;34m\]@$\[$(echo -e $color_user_host)\]\h \[\e[0;36m\]\w \[\e[1;33m\]\$\[\e[0m\] '
+PS1_LINE=' \[$(echo -e $color_user_host)\]\u\[\e[0;34m\]@\[$(echo -e $color_user_host)\]\h \[\e[0;36m\]\w \[\e[1;33m\]\$\[\e[0m\] '
 
 PS1="$PS1_TITLE$PS1_CLEARLINE$PS1_LINE_PRE$PS1_LINE"
