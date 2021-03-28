@@ -15,15 +15,10 @@ ps1_pre_prompt() {
 	fi
 	if [ $last_status -eq 0 ]; then
 		color_line_marker="\e[0;32m"
+		line_marker="✔"
 	else
 		color_line_marker="\e[0;31m"
-	fi
-}
-ps1_exit_code() {
-	if [ $last_status -eq 0 ]; then
-		echo -e "\e[0;32m✔"
-	else
-		echo -e "\e[1;31m✘"
+		line_marker="✘"
 	fi
 }
 
@@ -36,8 +31,8 @@ ps1_exit_code() {
 GIT_PROMPT_DISABLE_PRINT=true
 
 PS1_TITLE='\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}'
-PS1_CLEARLINE='\[\e[0m\]$(printf "%$((${COLUMNS:-$(tput cols)} - 1))s\r\e[K\]")'
-PS1_LINE_PRE='$(if [ -n "$git_prompt_line" ]; then echo -e "${color_line_marker}┌ ${git_prompt_line}\n${color_line_marker}└"; else ps1_exit_code; fi)'
-PS1_LINE=' $(echo -e $color_user_host)\u\[\e[0;34m\]@$(echo -e $color_user_host)\h \[\e[0;36m\]\w \[\e[1;33m\]\$\[\e[0m\] '
+PS1_CLEARLINE='\[\e[0m\]$(printf "%$((${COLUMNS:-$(tput cols)} - 1))s\r\[\e[K\]")'
+PS1_LINE_PRE='$(if [ -n "$git_prompt_line" ]; then echo -e "\[${color_line_marker}\]┌ ${git_prompt_line}\n\[${color_line_marker}\]└"; else echo -e "\[${color_line_marker}\]$line_marker"; fi)'
+PS1_LINE=' \[$(echo -e $color_user_host)\]\u\[\e[0;34m\]@$\[$(echo -e $color_user_host)\]\h \[\e[0;36m\]\w \[\e[1;33m\]\$\[\e[0m\] '
 
 PS1="$PS1_TITLE$PS1_CLEARLINE$PS1_LINE_PRE$PS1_LINE"
