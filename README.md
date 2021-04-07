@@ -117,6 +117,16 @@ It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 
 Which of course again becomes a two line prompt when not in a git directory.
 
+
+#### Other features
+
+- Always start the prompt on a new line - even if the output from the previous command did not
+	end with a newline (will be indicated by a ⏎ at the end of the commands output)
+- Color codes username and host so it is easy to see if you are root, logged in via ssh or a local user
+- Color codes the line marker so it is easy to see if the previous command returned an error or not
+	(even when using the single line prompt)
+
+
 #### Config
 
 The smart prompt can be configured slightly with some environment variables
