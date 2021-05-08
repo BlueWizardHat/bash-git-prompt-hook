@@ -137,11 +137,11 @@ function git_bash_prompt() {
 	local tracking_branch=""
 	local change_raw=""
 	local change=""
-	if [ ! -z "${tracking_branch_raw}" ]; then
+	if [ -n "${tracking_branch_raw}" ]; then
 		set -- $(git rev-list --left-right --count $tracking_branch_raw...HEAD 2> /dev/null)
 		local behind=$1
 		local ahead=$2
-		if [ ! -z "$ahead" ] && [ ! -z "$behind" ]; then
+		if [ -n "$ahead" ] && [ -n "$behind" ]; then
 			if [ $ahead -gt 0 ] && [ $behind -gt 0 ]; then
 				change_raw="${aheadbehind_pre}${ahead_marker}$ahead${aheadbehind_sep}${behind_marker}$behind${aheadbehind_post}"
 			elif [ $ahead -gt 0 ]; then
@@ -149,12 +149,15 @@ function git_bash_prompt() {
 			elif [ $behind -gt 0 ]; then
 				change_raw="${aheadbehind_pre}${behind_marker}$behind${aheadbehind_post}"
 			fi
-			if [ ! -z "$change_raw" ]; then
+			if [ -n "$change_raw" ]; then
 				change=" ${color_change_count}${change_raw}"
 				change_raw=" $change_raw"
 			fi
 		fi
 	fi
+
+	# Find the hash
+	local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
 
 	# Check if we are on a branch or a tag
 	local git_branch=""
@@ -204,8 +207,13 @@ function git_bash_prompt() {
 		change_raw=""
 		change=""
 	else
-		branch_raw="  NO BRANCH "
-		branch=" ${color_no_branch} NO BRANCH ${color_reset}"
+		if [ "$show_sha" != true ] && [ -n "${short_sha}" ]; then
+			branch_raw="  $short_sha "
+			branch=" ${color_no_branch} $short_sha ${color_reset}"
+		else
+			branch_raw="  NO BRANCH "
+			branch=" ${color_no_branch} NO BRANCH ${color_reset}"
+		fi
 	fi
 
 	# Check if a rebase, merge, cherry-pick or bisect is in progress
@@ -221,7 +229,7 @@ function git_bash_prompt() {
 	elif [ -f "$git_dir/BISECT_LOG" ]; then
 		state_raw=" BISECTING "
 	fi
-	if [ ! -z "$state_raw" ]; then
+	if [ -n "$state_raw" ]; then
 		state=" ${color_state}${state_raw}${color_reset}"
 		state_raw=" ${state_raw}"
 	fi
@@ -230,17 +238,16 @@ function git_bash_prompt() {
 	local porcelain=$(git status --porcelain 2> /dev/null) || true
 	local modified_raw=""
 	local modified=""
-	if [ ! -z "$porcelain" ]; then
+	if [ -n "$porcelain" ]; then
 		local files=$(echo "$porcelain" | wc -l)
 		modified_raw=" ${modified_marker}${files}"
 		modified=" ${color_dirty_marker}${modified_marker}${files}"
 	fi
 
-	# Find the hash
+	# Find the hash (how to display)
 	local sha_raw=""
 	local sha=""
-	local short_sha=$(git rev-parse --short HEAD 2> /dev/null) || true
-	if [ "$show_sha" == true ] && [ ! -z "${short_sha}" ]; then
+	if [ "$show_sha" == true ] && [ -n "${short_sha}" ]; then
 		if [ -z "$porcelain" ]; then
 			sha_raw=" (${short_sha})"
 			sha=" ${color_hash_paren}(${color_hash}${short_sha}${color_hash_paren})"
