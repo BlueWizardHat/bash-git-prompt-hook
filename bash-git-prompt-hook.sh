@@ -207,13 +207,14 @@ function git_bash_prompt() {
 		change_raw=""
 		change=""
 	else
-		if [ "$show_sha" != true ] && [ -n "${short_sha}" ]; then
+		if [ -n "${short_sha}" ]; then
 			branch_raw="  $short_sha "
 			branch=" ${color_no_branch} $short_sha ${color_reset}"
 		else
 			branch_raw="  NO BRANCH "
 			branch=" ${color_no_branch} NO BRANCH ${color_reset}"
 		fi
+		show_sha=false
 	fi
 
 	# Check if a rebase, merge, cherry-pick or bisect is in progress
