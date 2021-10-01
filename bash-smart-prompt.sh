@@ -28,10 +28,13 @@ ps1_pre_prompt() {
 	unset lp
 	if [ "$EUID" == 0 ]; then
 		printf -v color_user_host "\e[0;31m"
+		printf -v color_prompt "\e[1;33m"
 	elif [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
 		printf -v color_user_host "\e[0;33m"
+		printf -v color_prompt "\e[1;32m"
 	else
 		printf -v color_user_host "\e[0;32m"
+		printf -v color_prompt "\e[1;33m"
 	fi
 	if [ $last_status -eq 0 ]; then
 		printf -v color_line_marker "\e[0;34m"
@@ -50,6 +53,6 @@ PS1_CLEARLINE='\[\e[0;1;36m\]⏎\[\e[0m\]$(printf "%$((columns - 1))s\r\[\e[K\]"
 PS1_LINE1_PRE='\[${color_line_marker}\]┌ $([ -n "$git_prompt_line" ] && echo -e "${git_prompt_line}\n\[${color_line_marker}\]│ ")'
 PS1_LINE1_L='\[${color_exit_code}\]${last_status} \[\e[0;36m\]${timer_show} $([ \j -gt 0 ] && echo -e "\[\e[0;33m\]\j ")\[\e[0;34m\]\t \[\e[0;33m\]\w'
 PS1_LINE1_R='${git_prompt_right}'
-PS1_LINE2='\[${color_line_marker}\]└ \[${color_user_host}\]\u\[\e[0;34m\]@\[${color_user_host}\]\h \[\e[1;33m\]\$\[\e[0m\] '
+PS1_LINE2='\[${color_line_marker}\]└ \[${color_user_host}\]\u\[\e[0;34m\]@\[${color_user_host}\]\h\[${color_prompt}\]\$\[\e[0m\] '
 
 PS1="$PS1_TITLE$PS1_CLEARLINE$PS1_LINE1_PRE$PS1_LINE1_L$PS1_LINE1_R\n$PS1_LINE2"
