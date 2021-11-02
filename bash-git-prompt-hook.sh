@@ -70,8 +70,7 @@ function git_bash_prompt() {
 	local color_marker="\e[0;34m"
 	local color_origin="\e[0;35m"
 	local color_branch="\e[36;1m"
-	local color_branch_local="\e[35;1m"
-	local color_branch_local_msg="\e[0;35m"
+	local color_branch_local="\e[0;34m"
 	local color_branch_empty_rep="\e[0;31m"
 	local color_branch_master="\e[32;1m"
 	local color_branch_develop="\e[31;1m"
@@ -93,7 +92,7 @@ function git_bash_prompt() {
 	# Define markers
 	if [ "$GIT_PROMPT_DISABLE_UTF8_MARKERS" != true ]; then
 		local branch_marker=""
-		local local_branch_marker="!"
+		local local_branch_marker=""
 		local origin_marker="→"
 		local modified_marker="≠"
 		local stashes_marker="ᐅ"
@@ -108,7 +107,7 @@ function git_bash_prompt() {
 		local post_tag_marker_non=""
 	else
 		local branch_marker=""
-		local local_branch_marker="!"
+		local local_branch_marker=""
 		local origin_marker=""
 		local modified_marker="M:"
 		local stashes_marker="stashes:"
@@ -138,7 +137,7 @@ function git_bash_prompt() {
 	local change_raw=""
 	local change=""
 	if [ -n "${tracking_branch_raw}" ]; then
-		set -- $(git rev-list --left-right --count $tracking_branch_raw...HEAD 2> /dev/null)
+		set -- $(git rev-list --left-right --count @{upstream}...HEAD 2> /dev/null)
 		local behind=$1
 		local ahead=$2
 		if [ -n "$ahead" ] && [ -n "$behind" ]; then
@@ -283,8 +282,8 @@ function git_bash_prompt() {
 	#
 
 	# Contruct and print line
-	local fullline="${origin}${branch}${state}${sha}${modified}${change}${stash}${tracking_branch}${color_reset}"
 	if [ -z "$GIT_PROMPT_RIGHT_LENGTH" ] || [ "$GIT_PROMPT_RIGHT_LENGTH" == 0 ] ; then
+		local fullline="${origin}${branch}${state}${sha}${modified}${change}${stash}${tracking_branch}${color_reset}"
 		if [ $disable_print == true ]; then
 			git_prompt_line="$fullline"
 		else
@@ -357,7 +356,8 @@ function git_bash_prompt() {
 		return
 	fi
 
-	# Dropped as much as it makes sense to drop, so revert back to print on a separate line
+	# Dropped as much as it makes sense to drop, so revert to print on a separate line with slightly reduced info
+	local fullline="${color_origin}${origin_short}${branch}${state}${sha}${modified}${change}${stash}${color_reset}"
 	if [ $disable_print == true ]; then
 		git_prompt_line="$fullline"
 	else
