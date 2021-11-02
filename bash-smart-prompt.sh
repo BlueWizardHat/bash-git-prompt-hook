@@ -49,7 +49,7 @@ GIT_PROMPT_DISABLE_PRINT=true
 PS1_TITLE='\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}'
 PS1_CLEARLINE='\[\e[0;1;36m\]⏎\[\e[0m\]$(printf "%$((columns - 1))s\r\[\e[K\]")'
 PS1_LINE1_PRE='\[${color_line_marker}\]┌ $([ -n "$git_prompt_line" ] && echo -e "${git_prompt_line}\n\[${color_line_marker}\]│ ")'
-PS1_LINE1_L='$([ $last_status -ne 0 ] && echo -e "\[\e[0;31m\]$last_status ")\[\e[0;36m\]${timer_show}$([ \j -gt 0 ] && echo -e " \[\e[0;33m\]\j") \[\e[0;33m\]\w'
+PS1_LINE1_L='$([ $last_status -ne 0 ] && echo -e "\[\e[0;31m\]$last_status ")\[\e[0;36m\]${timer_show}$([ \j -gt 0 ] && echo -e " \[\e[0;34m\]\j") \[\e[0;33m\]\w'
 PS1_LINE1_R='${git_prompt_right}'
 PS1_LINE2='\[${color_line_marker}\]└ \[${color_user_host}\]\u\[\e[0;34m\]@\[${color_user_host}\]\h\[${color_prompt}\]\$\[\e[0m\] '
 
