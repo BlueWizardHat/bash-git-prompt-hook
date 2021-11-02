@@ -89,7 +89,6 @@ Line 1:
 - exit code of the last command (in green for zero, in red for non-zero)
 - how long the last command took to execute
 - number of background jobs (hidden if none)
-- the current time (24h)
 - directory
 - git information if in a git repository
 
@@ -101,7 +100,7 @@ Line 2:
 
 Example of inline mode:
 ```
-┌ 0 ~5ms 08:44:16 ~/directory/  →  mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
+┌ 0 ~5ms ~/directory/  →  mybranch (hash) ≠7 ↑1 ↓2 ᐅ3  →  myorigin
 └ user@host $
 ```
 ![inline](images/two_line_with_git.png)
@@ -110,7 +109,7 @@ Example of inline mode:
 It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 ```
 ┌ myorigin mybranch (hash) ≠7 ↑1 ↓2 ᐅ3
-│ 0 ~5ms 08:44:16 ~/directory/
+│ 0 ~5ms ~/directory/
 └ user@host $
 ```
 ![three line](images/three_line.png)
