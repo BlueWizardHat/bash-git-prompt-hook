@@ -86,7 +86,7 @@ with the origin moved to the right.
 The smart prompt shows the following information:
 
 Line 1:
-- exit code of the last command (in green for zero, in red for non-zero)
+- exit code of the last command (hidden if zero)
 - how long the last command took to execute
 - number of background jobs (hidden if none)
 - directory
