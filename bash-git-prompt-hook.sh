@@ -82,9 +82,9 @@ function git_bash_prompt() {
 	local color_tag_non="\e[0;33m"
 	local color_tag_msg="\e[0;36m"
 	local color_tag_non_msg="\e[0;35m"
-	local color_hash="\e[34;1m"
-	local color_hash_dirty="\e[31;1m"
-	local color_hash_paren="\e[0;34m"
+	local color_hash="\e[36m"
+	local color_hash_dirty="\e[36m"
+	local color_hash_sep="\e[0;34m"
 	local color_change_count="\e[0;33m"
 	local color_stash="\e[0;34m"
 	local color_dirty_marker="\e[0;31m"
@@ -249,16 +249,16 @@ function git_bash_prompt() {
 	local sha=""
 	if [ "$show_sha" == true ] && [ -n "${short_sha}" ]; then
 		if [ -z "$porcelain" ]; then
-			sha_raw=" (${short_sha})"
-			sha=" ${color_hash_paren}(${color_hash}${short_sha}${color_hash_paren})"
+			sha_raw="|${short_sha}"
+			sha="${color_hash_sep}|${color_hash}${short_sha}"
 		else
-			sha_raw=" (${short_sha})"
-			sha=" ${color_hash_paren}(${color_hash_dirty}${short_sha}${color_hash_paren})"
+			sha_raw="|${short_sha}"
+			sha="${color_hash_sep}|${color_hash_dirty}${short_sha}"
 		fi
 	fi
 	if [ -z "${short_sha}" ]; then
-		branch_raw="${branch_raw}:empty-repository"
-		branch="${branch}${color_branch_empty_rep}:empty-repository"
+		branch_raw="${branch_raw}|empty-repository"
+		branch="${branch}${color_hash_sep}|${color_branch_empty_rep}empty-repository"
 	fi
 
 	# Find number of stashes
