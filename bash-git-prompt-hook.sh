@@ -124,6 +124,7 @@ function git_bash_prompt() {
 
 	# Find the origin
 	local origin_raw=$(git config --get remote.origin.url 2> /dev/null) || true
+	origin=$(echo "$origin" | sed -e 's/%[0-9a-f][0-9a-f]/¤/ig') # Replace URL encode entitites with a ¤ mark
 	if [ -z "$origin_raw" ]; then
 		origin_raw="[no origin]"
 		origin="${color_origin}[no origin]"
