@@ -20,12 +20,37 @@
 # "unset timer_start".
 ################################################################################
 
+# MacOS
+if [ "$(uname -s)" = "Darwin" ]; then
+
+if $(which "gdate"); then
+
+# If GNU date is installed use that for millisecond precision
+function timer_now {
+	local nanos=$(gdate +%s%N)
+	echo -e $(($nanos / 1000000))
+}
+
+else
+
+# Default to seconds (ie. milliseconds is 000)
+function timer_now {
+	date +%s000
+}
+
+fi
+
+# Linux
+else
+
 # date command in ubuntu 26.04 no longer supports +%3N (rust rewrite I guess),
 # so manually convert from nanos to millis.
 function timer_now {
 	local nanos=$(date +%s%N)
 	echo -e $(($nanos / 1000000))
 }
+
+fi
 
 function timer_start {
 	timer_start=${timer_start:-$(timer_now)}
