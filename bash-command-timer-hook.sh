@@ -20,8 +20,11 @@
 # "unset timer_start".
 ################################################################################
 
+# date command in ubuntu 26.04 no longer supports +%3N (rust rewrite I guess),
+# so manually convert from nanos to millis.
 function timer_now {
-	date +%s%3N
+	local nanos=$(date +%s%N)
+	echo -e $(($nanos / 1000000))
 }
 
 function timer_start {
@@ -34,11 +37,10 @@ function timer_stop {
 	local s=$(((delta_ms / 1000) % 60))
 	local m=$(((delta_ms / 60000) % 60))
 	local h=$((delta_ms / 3600000))
-	local sep="⋅"
 	if ((h > 0)); then
-		timer_show="${h}h$sep${m}m"
+		timer_show="$h:$(printf %02d $m)h"
 	elif ((m > 0)); then
-		timer_show="${m}m$sep${s}s"
+		timer_show="$m:$(printf %02d $s)m"
 	elif ((s > 0)); then
 		local tenths=$((ms / 100))
 		if ((tenths > 0)); then
