@@ -19,10 +19,28 @@ PROMPT_COMMAND="last_status=\$?; $PROMPT_COMMAND"
 # Now set up the prompt
 #
 
+
+if [ "$(uname -s)" = "Darwin" ]; then
+
+# MacOS
+function ps1_pre_prompt_strip() {
+	sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" <<<"$1"
+}
+
+else
+
+# Linux
+function ps1_pre_prompt_strip() {
+	sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" <<<"$1" | sed "s,[\x01-\x02],,g"
+}
+
+fi
+
+
 ps1_pre_prompt() {
 	columns=${COLUMNS:-$(tput cols)}
 	printf -v lp "${PS1_LINE1_L@P}"
-	local stripped=$(sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" <<<"$lp" | sed "s,[\x01-\x02],,g")
+	local stripped=$(ps1_pre_prompt_strip "$lp")
 	local ps1_left_len=${#stripped}
 	GIT_PROMPT_RIGHT_LENGTH=$(if [ "${GIT_PROMPT_INLINE:-true}" == true ]; then echo $((columns - ps1_left_len - 2)); else echo 0; fi)
 	unset lp
