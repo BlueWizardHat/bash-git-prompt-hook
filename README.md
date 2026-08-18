@@ -1,7 +1,9 @@
 Git/Bash helpers
 ==============================================================================
 
-#### Installation
+## Installation
+
+### Linux
 
 To install, clone this repo and run the `install-prompt.sh` script.
 
@@ -11,7 +13,27 @@ the current directory is under a git repository.
 To additionally install some helpful Git aliases, run the `install-git-aliases.sh`
 script.
 
-#### General info
+### MacOS
+
+> [!CAUTION]
+> **You need at least Bash 4.4 to use this.** MacOS by default ships with an ancient
+> version of Bash, and this prompt will not work on the default installation.
+>
+> Install the newest version of Bash with `brew`.
+
+With a current version of bash installed just follow the instructions for linux.
+
+
+### Windows / Powershell
+
+This should run on WSL just fine, just install as you would on Linux.
+
+If you are in dire need of a git prompt that works in powershell a friend of mine made
+a windows/powershell port available at
+[https://github.com/mhvelplund/ps-git-prompt](https://github.com/mhvelplund/ps-git-prompt).
+
+
+## General info
 
 This was developed using git version 1.8.1.2 and should work with this version
 of git and newer. It may or may not work with some older versions. It has been
@@ -36,13 +58,8 @@ A examples of a line:
 ```
 ![standalone](images/standalone.png)
 
-> [!CAUTION]
-> **You need at least Bash 4.4 to use this.** This is relevant if you are on MacOS, 
-> since it ships with an ancient version of Bash. 
->
-> Install the newest version of Bash with `brew`.
 
-#### Config
+## Config
 
 The git prompt can be configured slightly with some environment variables
 - `GIT_PROMPT_SHOW_SHA=true`
@@ -57,7 +74,7 @@ An example of a line with utf8 markers disabled:
 ![standalone ascii](images/standalone_ascii.png)
 
 
-#### Additional configuration option
+## Additional configuration options
 
 Additionally the git prompt also takes two special configs that are used by the smart
 prompt explained below.
@@ -123,7 +140,7 @@ It can also be used in three-line mode (GIT_PROMPT_INLINE=false):
 Which of course again becomes a two line prompt when not in a git directory.
 
 
-#### Other features
+### Other features
 
 - Always start the prompt on a new line - even if the output from the previous command did not
 	end with a newline (will be indicated by a ⏎ at the end of the commands output)
@@ -132,7 +149,7 @@ Which of course again becomes a two line prompt when not in a git directory.
 	(even when using the single line prompt)
 
 
-#### Config
+### Config
 
 The smart prompt can be configured slightly with some environment variables
 (this is in addition to the ones above for the standalone git prompt)
@@ -142,7 +159,7 @@ The smart prompt can be configured slightly with some environment variables
 	allows you to disable inline mode so git info is always a separate line.
 
 
-#### Dropping git information intelligently (inline mode)
+### Dropping git information intelligently (inline mode)
 
 I usually use the excellent [Guake Terminal](http://guake-project.org/) so my terminal
 is pretty wide and thus has plenty of room for information, however sometimes even I
