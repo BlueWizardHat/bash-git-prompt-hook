@@ -36,13 +36,19 @@ A examples of a line:
 ```
 ![standalone](images/standalone.png)
 
+> [!CAUTION]
+> **You need at least Bash 4.4 to use this.** This is relevant if you are on MacOS, 
+> since it ships with an ancient version of Bash. 
+>
+> Install the newest version of Bash with `brew`.
+
 #### Config
 
 The git prompt can be configured slightly with some environment variables
-- GIT_PROMPT_SHOW_SHA=true
-- GIT_PROMPT_SHOW_STASHES=true
-- GIT_PROMPT_SHOW_TRACKING=true
-- GIT_PROMPT_DISABLE_UTF8_MARKERS=false
+- `GIT_PROMPT_SHOW_SHA=true`
+- `GIT_PROMPT_SHOW_STASHES=true`
+- `GIT_PROMPT_SHOW_TRACKING=true`
+- `GIT_PROMPT_DISABLE_UTF8_MARKERS=false`
 
 An example of a line with utf8 markers disabled:
 ```
@@ -51,17 +57,17 @@ An example of a line with utf8 markers disabled:
 ![standalone ascii](images/standalone_ascii.png)
 
 
-#### Additinal configuration options
+#### Additional configuration option
 
 Additionally the git prompt also takes two special configs that are used by the smart
 prompt explained below.
 
-- GIT_PROMPT_RIGHT_LENGTH=&lt;number&gt; -
+- `GIT_PROMPT_RIGHT_LENGTH=<number>` -
 	tells the prompt to try to fit the git information into the number of characters and put the
 	result into a variable `git_prompt_right`. If git information cannot fit it will revert to
 	printing on a separate line.
 
-- GIT_PROMPT_DISABLE_PRINT=false -
+- `GIT_PROMPT_DISABLE_PRINT=false` -
 	if `true` tells the prompt to never actually print a line. Instead put the information into either
 	`git_prompt_right` or `git_prompt_line` depending on weather `GIT_PROMPT_RIGHT_LENGTH`
 	is set and the information can fit.
@@ -130,9 +136,9 @@ Which of course again becomes a two line prompt when not in a git directory.
 
 The smart prompt can be configured slightly with some environment variables
 (this is in addition to the ones above for the standalone git prompt)
-- GIT_PROMPT_SHOW_ORIGIN=true -
+- `GIT_PROMPT_SHOW_ORIGIN=true` -
 	(only relevant in inline mode, when showing git information on a separate line origin is always shown)
-- GIT_PROMPT_INLINE=true -
+- `GIT_PROMPT_INLINE=true` -
 	allows you to disable inline mode so git info is always a separate line.
 
 
